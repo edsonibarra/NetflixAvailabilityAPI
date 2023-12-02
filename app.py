@@ -1,6 +1,10 @@
 import csv
 import sqlite3
 import json
+from db_insert_values import insert_query
+
+conn = sqlite3.connect("netflix.sqlite")
+cur = conn.cursor()
 
 
 file_path = "netflix_titles.csv"
@@ -10,19 +14,18 @@ def read_file(file_path):
         reader = csv.DictReader(f, delimiter=",")
         i = 0
         for row in reader:
-            columns = []
-            if i == 0:
-                columns = row.keys()
-                print(columns)
-                db_create_table(columns)
-            if i == 3:
-                
-                print("finished")
-                return
-            i+=1
-            print(row)
+            print("Row number", i + 1)
+            try:
+                show_id, type, title, director, cast, country, date_added, release_year, rating, duration, listed_in, desc = row['show_id'], row['type'], row['title'], row['director'], row['cast'], row['country'], row['date_added'], row['release_year'], row['rating'], row['duration'], row['listed_in'], row[' ']
+            except Exception as e:
+                print("There was an error",e,"in line", i)
 
-
+            try:
+                cur.execute(insert_query, [show_id, type, title, director, cast, country, date_added, release_year, rating, duration, listed_in, desc])
+            except Exception as e:
+                print(e)
+            i += 1
+        conn.commit()
 def db_create_table(columns):
     conn = sqlite3.connect("netflix.sqlite")
     print("Connected to database")
